@@ -3,12 +3,12 @@
 # management everywhere. Validate it on every change.
 name: validate preset
 
+# Deliberately no `paths` filter. This job is a required status check, and a
+# required check that is skipped never reports — so a README-only PR would be
+# unmergeable. The job takes seconds; running it always is cheaper than the
+# footgun.
 on:
   pull_request:
-    paths:
-      - default.json
-      - renovate.json
-      - .github/workflows/validate-preset.yml
   push:
     branches: [main]
 
