@@ -1,0 +1,32 @@
+# The preset in this repo is inherited by every other repo in the account, so a
+# malformed rule is not a local problem — it silently degrades dependency
+# management everywhere. Validate it on every change.
+name: validate preset
+
+on:
+  pull_request:
+    paths:
+      - default.json
+      - renovate.json
+      - .github/workflows/validate-preset.yml
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      # Pinned deliberately: the validator is the thing asserting correctness, so
+      # it should not change underneath the assertion without a visible bump.
+      # Renovate manages this pin like any other dependency.
+      - name: Validate Renovate config
+        run: npx --yes --package renovate@37.440.7 -- renovate-config-validator --strict default.json renovate.json

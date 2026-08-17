@@ -1,0 +1,89 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Shared Renovate policy for all silverbeer repos. See README.md for why each rule exists.",
+
+  "extends": ["config:recommended", ":dependencyDashboard"],
+
+  "timezone": "America/New_York",
+  "schedule": ["before 7am on monday"],
+  "semanticCommits": "enabled",
+  "semanticCommitScope": "deps",
+
+  "prConcurrentLimit": 5,
+  "prHourlyLimit": 2,
+
+  "separateMajorMinor": true,
+
+  "minimumReleaseAge": "3 days",
+
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["before 7am on the first day of the month"]
+  },
+
+  "pre-commit": {
+    "enabled": true
+  },
+
+  "packageRules": [
+    {
+      "description": "One PR per ecosystem, not one per dependency. Forty separate bump PRs is how automation gets muted.",
+      "matchManagers": ["github-actions"],
+      "groupName": "github actions"
+    },
+    {
+      "matchManagers": ["pep621", "pip_requirements", "pipenv", "poetry"],
+      "groupName": "python dependencies"
+    },
+    {
+      "matchManagers": ["npm"],
+      "groupName": "node dependencies"
+    },
+    {
+      "matchManagers": ["dockerfile", "docker-compose"],
+      "groupName": "docker images"
+    },
+    {
+      "matchManagers": ["helm-values", "helmv3"],
+      "groupName": "helm charts"
+    },
+    {
+      "description": "pre-commit hook revs move on their own schedule and are worth seeing separately — this is the class of drift that caused SB-432.",
+      "matchManagers": ["pre-commit"],
+      "groupName": "pre-commit hooks"
+    },
+
+    {
+      "description": "Patch and minor auto-merge on green CI. Majors are always read by a human.",
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+      "platformAutomerge": true
+    },
+    {
+      "description": "Majors never auto-merge. separateMajorMinor at the top level keeps them in their own PR so the changelog is readable.",
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "addLabels": ["major-update"]
+    },
+    {
+      "description": "A formatter's output is its contract, so a surprise bump rewrites diffs. Never auto-merge one — see the ruff case in the README.",
+      "matchPackageNames": ["ruff", "black", "prettier", "astral-sh/ruff-pre-commit"],
+      "automerge": false,
+      "addLabels": ["formatter"]
+    },
+    {
+      "description": "Python itself is a deliberate migration, not a dependency bump.",
+      "matchDatasources": ["python-version", "docker"],
+      "matchPackageNames": ["python"],
+      "automerge": false,
+      "addLabels": ["runtime-upgrade"]
+    }
+  ],
+
+  "vulnerabilityAlerts": {
+    "description": "Security fixes bypass the weekly window and the release-age wait.",
+    "schedule": null,
+    "minimumReleaseAge": null,
+    "addLabels": ["security"]
+  }
+}
