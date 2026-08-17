@@ -77,9 +77,20 @@ which is exactly the failure above.
 
 ### A weekly window, and a three-day release age
 
-Updates land in one Monday-morning batch, so review is a habit rather than an
-interrupt. `minimumReleaseAge: 3 days` means a release that gets yanked or
-hot-fixed over a weekend is never picked up at all.
+Updates land in one Monday batch, so review is a habit rather than an interrupt.
+`minimumReleaseAge: 3 days` means a release that gets yanked or hot-fixed over a
+weekend is never picked up at all.
+
+The window is a **whole day**, not a morning, and that is a consequence of the
+hosting tier. Mend's free Community Cloud allows **one concurrent job per
+account** and scans each repo roughly **every four hours**. A seven-hour window
+therefore gives a repo about two chances to be picked up, with every repo in the
+account queueing through a single job slot — so some would silently miss their
+turn. A full day removes the race without spreading review across more than one
+day.
+
+Worth knowing if the tier ever changes: Enterprise Cloud raises this to 16
+concurrent jobs and hourly scans, at which point a narrower window is safe again.
 
 Security advisories bypass both — they are exempted from the schedule and the
 waiting period.
